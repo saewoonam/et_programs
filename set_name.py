@@ -66,7 +66,6 @@ def main():
     print('Searching for devices...')
     connected_to_peripheral = False
     devices = scan_for_peripheral(adapter)
-    loop_count = 0
     needs_name = []
     for peripheral in devices:
         if peripheral.name.endswith('-GEN'):
@@ -84,14 +83,13 @@ def main():
         rw    = service.find_characteristic(rw_uuid)
         data  = service.find_characteristic(data_uuid)
 
-        new_name = 'NIST%04d'%loop_count
+        new_name = 'NIST%04d'%number
         new_name = new_name.encode()
         print(f"new name: {new_name}")
         # print('data', data)
         data.write_value(new_name)
         rw.write_value(b'N')
         print(rw.read_value());
-        loop_count += 1
     if len(needs_name)>0:
         print(f"Found {len(needs_name)} devices need a number.")
         for peripheral in needs_name:

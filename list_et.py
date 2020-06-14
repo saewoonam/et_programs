@@ -39,7 +39,7 @@ def scan_for_peripheral(adapter):
         if len(devices) == 0:
             raise RuntimeError('Failed to find  a device!')
         else:
-            print("Found: ", len(all_devices))
+            print(f"Found {len(all_devices)} bluetooth devices ")
         return devices
     finally:
         # Make sure scanning is stopped before exiting.
@@ -66,11 +66,13 @@ def main():
     connected_to_peripheral = False
     devices = scan_for_peripheral(adapter)
     loop_count = 0
+    print(f"Found {len(devices)} NIST encounter tracing devices ")
     for peripheral in devices:
-        print("peripheral: ", peripheral, peripheral.name)
-        peripheral.connect(timeout_sec=10)
-        print("connected", peripheral.is_connected)
-        if True:
+        print("peripheral: ", peripheral.name)
+
+        # peripheral.connect(timeout_sec=10)
+        # print("connected", peripheral.is_connected)
+        if False:
             print("advertised", peripheral.advertised)
             peripheral.discover([service_uuid], [count_uuid, rw_uuid, data_uuid])
             service = peripheral.find_service(service_uuid)
@@ -95,9 +97,9 @@ def main():
             peripheral.discover([gen_access_uuid], [dev_name_uuid])
             gen_access = peripheral.find_service(gen_access_uuid)
             print("gen_access", gen_access)
-        services = peripheral.list_services()
-        for s in services:
-            print(s.__dict__)
+        # services = peripheral.list_services()
+        # for s in services:
+        #     print(s.__dict__)
         # dev_name_char = gen_access.find_characteristic(dev_name_uuid)
         # serial_num = dev_name_char.read_value()
         # print(s)
