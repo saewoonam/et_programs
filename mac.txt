@@ -1,0 +1,10 @@
+Adafruit-BluefruitLE==0.9.10
+adafruit-nrfutil==0.5.3.post12
+certifi==2020.4.5.1
+console-menu==0.6.0
+ecdsa==0.15
+future==0.18.2
+pyobjc-core==6.2.1
+pyobjc-framework-Cocoa==6.2.1
+pyobjc-framework-CoreBluetooth==6.2.1
+six==1.15.0
