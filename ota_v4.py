@@ -142,7 +142,7 @@ def main():
                     data_service.write_value(get_idx.to_bytes(4, byteorder='little'))
             else:
                 get_idx = data_handler.packet_index
-                print("did not receive packet {data_handler.packet_index}")
+                print(f"Problem with packet: {data_handler.packet_index}, received len:{len(data)}")
                 data_service.write_value(get_idx.to_bytes(4, byteorder='little'))
 
         # Turn on notification of RX characteristics using the callback above.
