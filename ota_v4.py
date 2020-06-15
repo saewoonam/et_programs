@@ -46,6 +46,13 @@ def static_vars(**kwargs):
         return func
     return decorate
 
+def calc_xfer_parameters(num_records, packet_size):
+    num_chunks = num_records*32 /(packet_size-4)
+    if (num_records*32)%(packet_size-4) == 0:
+        num_chunks -= 1
+    print("num_32byte_records, num bytes, num_chunks to fetch: ", num_records, num_records*32,
+          num_chunks)
+    return num_chunks
 
 # Main function implements the program logic so it can run in a background
 # thread.  Most platforms require the main thread to handle GUI events and other
@@ -83,6 +90,8 @@ def main():
             print("Retrying...")
 
         global total_len, done_xfer, data_service, fp_out, num_records
+        global packet_size
+        packet_size = 244
         peripheral.discover([service_uuid], [count_uuid, rw_uuid, spp_data_uuid])
         service = peripheral.find_service(service_uuid)
         count = service.find_characteristic(count_uuid)
@@ -94,11 +103,6 @@ def main():
         msg = f"Hello from my mac.\r\n"
         data_service.write_value(msg.encode())
         num_records = int.from_bytes(count.read_value(), byteorder='little')
-        num_chunks = num_records*32 / 240
-        if (num_records*32)%240 == 0:
-            num_chunks -= 1
-        print("num_32byte_records, num bytes, num_chunks to fetch: ", num_records, num_records*32,
-              num_chunks)
         total_len = 0
         done_xfer = False
         if num_records==0:
@@ -108,21 +112,28 @@ def main():
             fp_out = open('raw_'+peripheral.name+'_'+date_suffix+'.bin', 'wb')
         print('*'*40)
         start=time.time()
+        # num_chunks = calc_xfer_parameters(num_records, packet_size)
 
-        @static_vars(packet_index=0, total=0, not_done=True)
+        @static_vars(packet_index=0, total=0, not_done=True, packet_size = 0)
         def data_handler(data):
             global total_len, done_xfer, data_service, fp_out, num_records
-            # print("Trying to receive")
+            if total_len == 0:
+                # Use first packet to determine packet size
+                # This will fail for really small xfer sizes...  Ignore that
+                # for now
+                data_handler.packet_size = len(data)
+
             got_packet_index = int.from_bytes(data[:4], byteorder='little')
-            if (num_records*32-total_len) < 240:
+            if (num_records*32-total_len) < (data_handler.packet_size-4):
                 expected_len = num_records*32 - total_len + 4
             else:
-                expected_len = 240 + 4
+                expected_len = data_handler.packet_size
             packet_len = len(data)
 
             if (data_handler.packet_index==got_packet_index) and (packet_len ==
                                                           expected_len):
                 total_len += packet_len-4
+                data_handler.total += packet_len -4
                 if packet_len>0:
                     fp_out.write(data[4:])
                 # fp_out.flush()
