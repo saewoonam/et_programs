@@ -76,17 +76,18 @@ def main():
             time.sleep(1)
             print("Retrying...")
         # print(peripheral.list_services())
-        print(peripheral.id)
-        print(peripheral._peripheral.identifier())
+        # print(peripheral.id)
+        # print(peripheral._peripheral.identifier())
         peripheral.discover([service_uuid], [count_uuid, rw_uuid])
         service = peripheral.find_service(service_uuid)
         count = service.find_characteristic(count_uuid)
         rw    = service.find_characteristic(rw_uuid)
         read_val = rw.read_value()
-        print(service)
+        # print(service)
         # print(service, count, rw)
-        print("rw: ", read_val)
-        print("count: ", count.read_value())
+        print("last received rw command: ", read_val)
+        print("count: ", int.from_bytes(count.read_value(),
+                                        byteorder='little'))
 
 # Initialize the BLE system.  MUST be called before other BLE calls!
 ble.initialize()
