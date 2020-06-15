@@ -157,7 +157,7 @@ def main():
                 data_service.write_value(get_idx.to_bytes(4, byteorder='little'))
 
         # Turn on notification of RX characteristics using the callback above.
-        print('Subscribing to spp_data characteristic changes...')
+        print('Subscribing to data characteristic changes...')
         data_service.start_notify(data_handler)
         print("Send command to fetch data")
         rw.write_value(b'f')

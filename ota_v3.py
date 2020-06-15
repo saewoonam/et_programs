@@ -92,7 +92,7 @@ def main():
             done_xfer = True
         else:
             date_suffix = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
-            fp_out = open('raw_'+date_suffix+'.bin', 'wb')
+            fp_out = open('raw_'+peripheral.name+'_'+date_suffix+'.bin', 'wb')
         print('*'*40)
         start=time.time()
         def received(data):

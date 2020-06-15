@@ -34,8 +34,7 @@ def scan_for_peripheral(adapter):
         time.sleep(5)
         all_devices = ble.list_devices()
         devices = ble.find_devices(service_uuids=[service_uuid])
-        print(len(devices))
-
+        # print(len(devices))
         if len(devices) == 0:
             raise RuntimeError('Failed to find device!')
         return devices
@@ -58,21 +57,18 @@ def main():
     print('Using adapter: {0}'.format(adapter.name))
     # Disconnect any currently connected UART devices.  Good for cleaning up and
     # starting from a fresh state.
-    print('Disconnecting any connected UART devices...')
-    UART.disconnect_devices()
-
-    print('Searching for device...')
+    print('Searching for devices...\n')
     connected_to_peripheral = False
     test_iteration = 0
     devices = scan_for_peripheral(adapter)
     for peripheral in devices:
         try:
-            print("peripheral: ", peripheral.name)
+            print(peripheral.name, end=": ", flush=True)
             peripheral.connect(timeout_sec=10)
             connected_to_peripheral = True
             test_iteration += 1
         except BaseException as e:
-            print("Connection failed: " + str(e))
+            print("\n Connection failed: " + str(e))
             time.sleep(1)
             print("Retrying...")
         # print(peripheral.list_services())
@@ -85,9 +81,10 @@ def main():
         read_val = rw.read_value()
         # print(service)
         # print(service, count, rw)
-        print("last received rw command: ", read_val)
-        print("count: ", int.from_bytes(count.read_value(),
-                                        byteorder='little'))
+        # print("last received rw command: ", read_val)
+        count =  int.from_bytes(count.read_value(),
+                                        byteorder='little')
+        print(f"{count:5d}, {count*32} bytes used")
 
 # Initialize the BLE system.  MUST be called before other BLE calls!
 ble.initialize()
