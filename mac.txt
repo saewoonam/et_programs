@@ -1,9 +1,12 @@
 adafruit-nrfutil==0.5.3.post12
 certifi==2020.4.5.1
+click==7.1.2
 console-menu==0.6.0
 ecdsa==0.15
 future==0.18.2
+numpy==1.18.5
 pyobjc-core==6.2.1
 pyobjc-framework-Cocoa==6.2.1
 pyobjc-framework-CoreBluetooth==6.2.1
+pyserial==3.4
 six==1.15.0
