@@ -173,7 +173,7 @@ def main():
 
     def m(devices):
         # Create the root menu
-        menu = ConsoleMenu("Bluetooth Devices Menu", "")
+        menu = ConsoleMenu("OTA4 file transfer Menu", "")
         def item_func(peripheral):
             download(peripheral)
             input("Press Enter to continue.")

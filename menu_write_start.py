@@ -73,7 +73,7 @@ def item_func(peripheral):
 def m(devices):
     # Create the root menu
     global menu
-    menu = ConsoleMenu("Bluetooth Devices Menu", "")
+    menu = ConsoleMenu("Bluetooth Gadget Start writing to flash Menu", "")
     # Create a menu item that calls a function
     # for peripheral in devices:
     for k in devices.keys():
