@@ -53,7 +53,7 @@ def main():
     print('Disconnecting any connected UART devices...')
     UART.disconnect_devices()
 
-    print('Searching for device...')
+    print('Searching for devices...')
     connected_to_peripheral = False
     test_iteration = 0
     devices = scan_for_peripheral(adapter)
@@ -61,7 +61,7 @@ def main():
     global total_len, done_xfer, data_service, out
     for peripheral in devices:
         try:
-            print("peripheral: ", peripheral.name)
+            print(f"{peripheral.name} write status", end="")
             peripheral.connect(timeout_sec=10)
             connected_to_peripheral = True
             test_iteration += 1
@@ -80,9 +80,8 @@ def main():
         read_val = rw.read_value()
         # print(service)
         # print(service, count, rw)
-        print("rw: ", read_val)
+        # print("rw: ", read_val)
         count_raw = int.from_bytes(count.read_value(), byteorder='little')
-        print("count: ", count_raw)
 
         total_len = 0
         done_xfer = False
@@ -95,19 +94,26 @@ def main():
             # print(total_len, out.hex(), data.hex())
             # print('Received {0} bytes total {1}'.format(packet_len, total_len))
             if total_len >= 1:
-                print("Done with xfer")
+                # print("Done with xfer")
                 data_service.stop_notify()
                 done_xfer = True
 
         # Turn on notification of RX characteristics using the callback above.
         data_service.start_notify(received)
-        print("Send command to fetch info/status")
+        # print("Send command to fetch info/status")
         rw.write_value(b'I')
-        print('rw.read_value()', rw.read_value())
+        # print('rw.read_value()', rw.read_value())
         while not done_xfer:
-            print('waiting')
+            # print('waiting')
             time.sleep(0.1)
-        print('write_flash: ', out.hex())
+        if out == b'00':
+            print(f": OFF")
+        elif out == b'01':
+            print(f": ON")
+        else:
+            print(f": {out.hex()}")
+        # print("count: ", count_raw)
+        # print('write_flash: ', out.hex())
 
 # Initialize the BLE system.  MUST be called before other BLE calls!
 ble.initialize()
