@@ -17,7 +17,7 @@ et_uuid      = uuid.UUID('7b183224-9168-443e-a927-7aeea07e8105')
 # Get the BLE provider for the current platform.
 ble = Adafruit_BluefruitLE.get_provider()
 
-def scan_for_peripherals(adapter, num=6):
+def scan_for_peripherals(adapter, num=2):
     """Scan for BLE peripheral and return device if found"""
     print('Searching for devices...')
     all_found = False
@@ -31,7 +31,7 @@ def scan_for_peripherals(adapter, num=6):
             devices = ble.find_devices(service_uuids=[et_uuid])
             if len(devices) == 0:
                 raise RuntimeError('Failed to find  a device!')
-            if (len(devices)==num):
+            if (len(devices)>=num):
                 all_found = True
                 return devices
             print(f"found {len(devices)}/{num}")

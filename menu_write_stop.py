@@ -19,7 +19,7 @@ spp_data_uuid= uuid.UUID('fec26ec4-6d71-4442-9f81-55bc21d658d6')
 ble = Adafruit_BluefruitLE.get_provider()
 global menu
 
-def item_func(peripheral):
+def item_func(peripheral, override=None):
     global total_len, done_xfer, data_service, out
     service = peripheral.find_service(service_uuid)
     count = service.find_characteristic(count_uuid)
@@ -62,11 +62,19 @@ def item_func(peripheral):
     else:
         write =f"{out.hex()}"
 
-    selected = menu.selected_option
-    menu.items[selected].text = f"{peripheral.name}: rw:{read_val} count:{count_raw} write:{write}"
+    if override is None:
+        selected = menu.selected_option
+        menu.items[selected].text = f"{peripheral.name}: rw:{read_val} count:{count_raw} write:{write}"
+        menu.epilogue_text = "Last result: " + menu.items[selected].text
+    else:
+        menu.items[override].text = f"{peripheral.name}: rw:{read_val} count:{count_raw} write:{write}"
     # print(menu.__dict__)
-    menu.epilogue_text = "Last result: " + menu.items[selected].text
     # input("Press Enter to continue.")
+
+def all_item_func(devices):
+    for idx, k in enumerate(devices.keys()):
+        peripheral = devices[k]
+        item_func(peripheral, idx)
 
 def m(devices):
     # Create the root menu
@@ -79,6 +87,8 @@ def m(devices):
         item_name = peripheral.name + ': ' + str(peripheral.id)
         function_item = FunctionItem(item_name, item_func, [peripheral])
         menu.append_item(function_item)
+    function_item = FunctionItem('All', all_item_func, [devices])
+    menu.append_item(function_item)
 
     menu.start()
     menu.join()
