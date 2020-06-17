@@ -3,10 +3,13 @@ from Adafruit_BluefruitLE.services import UART, DeviceInformation
 import time
 import uuid
 import datetime
+import sys
 
 from consolemenu import *
 from consolemenu.items import *
 
+if len(sys.argv)>=2:
+    number_to_find = int(sys.argv[1])
 DEVICE_NAME="NIST-GEN"
 service_uuid = uuid.UUID('7b183224-9168-443e-a927-7aeea07e8105')
 count_uuid   = uuid.UUID('292bd3d2-14ff-45ed-9343-55d125edb721')
@@ -73,7 +76,7 @@ def main():
     # print('Disconnecting any connected UART devices...')
     # UART.disconnect_devices()
 
-    devices = scan_for_peripherals(adapter)
+    devices = scan_for_peripherals(adapter, number_to_find)
 
     def download(peripheral):
         connected_to_peripheral = False
