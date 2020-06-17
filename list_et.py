@@ -2,6 +2,7 @@ import Adafruit_BluefruitLE
 from Adafruit_BluefruitLE.services import UART, DeviceInformation
 import time
 import uuid
+import sys
 
 DEVICE_NAME="NIST BT test"
 DEVICE_NAME="NIST-GEN"
@@ -29,21 +30,43 @@ ble = Adafruit_BluefruitLE.get_provider()
 # # device = ble.find_device(name=DEVICE_NAME)
 # device = ble.find_device(service_uuids=[et_uuid])
 
-def scan_for_peripheral(adapter):
+if len(sys.argv)>=2:
+    number_to_find = int(sys.argv[1])
+else:
+    number_to_find = 4
+def scan_for_peripherals(adapter, num=4):
     """Scan for BLE peripheral and return device if found"""
-    try:
-        adapter.start_scan()
-        time.sleep(4)
-        all_devices = ble.list_devices()
-        devices = ble.find_devices(service_uuids=[et_uuid])
-        if len(devices) == 0:
-            raise RuntimeError('Failed to find  a device!')
-        else:
-            print(f"Found {len(all_devices)} bluetooth devices ")
-        return devices
-    finally:
-        # Make sure scanning is stopped before exiting.
-        adapter.stop_scan()
+    # try:
+    #     adapter.start_scan()
+    #     time.sleep(4)
+    #     all_devices = ble.list_devices()
+    #     devices = ble.find_devices(service_uuids=[et_uuid])
+    #     if len(devices) == 0:
+    #         raise RuntimeError('Failed to find  a device!')
+    #     else:
+    #         print(f"Found {len(all_devices)} bluetooth devices ")
+    #     return devices
+    # finally:
+    #     # Make sure scanning is stopped before exiting.
+    #     adapter.stop_scan()
+    all_found = False
+    while not all_found:
+        try:
+            adapter.start_scan()
+            # Scan for the peripheral (will time out after 60 seconds
+            # but you can specify an optional timeout_sec parameter to change it).
+            time.sleep(3)
+            all_devices = ble.list_devices()
+            devices = ble.find_devices(service_uuids=[et_uuid])
+            if len(devices) == 0:
+                raise RuntimeError('Failed to find  a device!')
+            if (len(devices)>=num):
+                all_found = True
+                return devices
+            print(f"found {len(devices)}/{num}")
+        finally:
+            # Make sure scanning is stopped before exiting.
+            adapter.stop_scan()
 
 # Main function implements the program logic so it can run in a background
 # thread.  Most platforms require the main thread to handle GUI events and other
@@ -64,7 +87,7 @@ def main():
 
     print('Searching for devices...')
     connected_to_peripheral = False
-    devices = scan_for_peripheral(adapter)
+    devices = scan_for_peripherals(adapter, number_to_find)
     loop_count = 0
     print(f"Found {len(devices)} NIST encounter tracing devices ")
     for peripheral in devices:
