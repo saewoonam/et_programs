@@ -10,6 +10,8 @@ from consolemenu.items import *
 
 if len(sys.argv)>=2:
     number_to_find = int(sys.argv[1])
+else:
+    number_to_find = 4
 DEVICE_NAME="NIST-GEN"
 service_uuid = uuid.UUID('7b183224-9168-443e-a927-7aeea07e8105')
 count_uuid   = uuid.UUID('292bd3d2-14ff-45ed-9343-55d125edb721')
@@ -20,7 +22,7 @@ et_uuid      = uuid.UUID('7b183224-9168-443e-a927-7aeea07e8105')
 # Get the BLE provider for the current platform.
 ble = Adafruit_BluefruitLE.get_provider()
 
-def scan_for_peripherals(adapter, num=2):
+def scan_for_peripherals(adapter, num=4):
     """Scan for BLE peripheral and return device if found"""
     print('Searching for devices...')
     all_found = False
