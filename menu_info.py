@@ -2,7 +2,7 @@ import Adafruit_BluefruitLE
 from Adafruit_BluefruitLE.services import UART, DeviceInformation
 import time
 import uuid
-
+import sys
 from consolemenu import *
 from consolemenu.items import *
 
@@ -94,7 +94,7 @@ def m(devices):
     menu.start()
     menu.join()
 
-def scan_for_peripheral(adapter):
+def scan_for_peripherals(adapter, num=4):
     """Scan for BLE peripheral and return device if found"""
     try:
         adapter.start_scan()
@@ -102,26 +102,35 @@ def scan_for_peripheral(adapter):
         # but you can specify an optional timeout_sec parameter to change it).
         # device = ble.find_device(name=DEVICE_NAME)
         # device = ble.find_device(service_uuids=[spp_uuid])
+
         time.sleep(5)
-        all_devices = ble.list_devices()
-        devices = ble.find_devices(service_uuids=[service_uuid])
-        conn = {}
-        for peripheral in devices:
-            connected = False
-            while not connected:
-                try:
-                    print("peripheral: ", peripheral.name, flush=True)
-                    peripheral.connect(timeout_sec=10)
-                    connected = True
+        done = False
+        while not done:
+            all_devices = ble.list_devices()
+            devices = ble.find_devices(service_uuids=[service_uuid])
+            print(all_devices)
+            conn = {}
+            for peripheral in devices:
+                connected = False
+                while not connected:
+                    try:
+                        print("peripheral: ", peripheral.name, flush=True)
+                        peripheral.connect(timeout_sec=10)
+                        connected = True
 
-                except BaseException as e:
-                    print("Connection failed: " + str(e))
-                    time.sleep(1)
-                    print("Retrying...")
-            conn[peripheral.name] = peripheral
+                    except BaseException as e:
+                        print("Connection failed: " + str(e))
+                        time.sleep(1)
+                        print("Retrying...")
+                conn[peripheral.name] = peripheral
 
-        if len(devices) == 0:
-            raise RuntimeError('Failed to find device!')
+            if len(conn) == 0:
+                raise RuntimeError('Failed to find device!')
+            if len(conn)>= num:
+                done = True
+            else:
+                print(f"Found {len(connect)} / {num}")
+
     finally:
         adapter.stop_scan()
     return conn
@@ -132,6 +141,7 @@ def scan_for_peripheral(adapter):
 # of automatically though and you just need to provide a main function that uses
 # the BLE provider.
 def main():
+    global g_number_to_find
     # Clear any cached data because both bluez and CoreBluetooth have issues with
     # caching data and it going stale.
     ble.clear_cached_data()
@@ -146,17 +156,25 @@ def main():
     print('Searching for device...')
     connected_to_peripheral = False
     test_iteration = 0
-    conn = scan_for_peripheral(adapter)
+    conn = scan_for_peripherals(adapter, g_number_to_find)
 
     for k in conn.keys():
         print(k, conn[k])
 
     m(conn)
 
-# Initialize the BLE system.  MUST be called before other BLE calls!
-ble.initialize()
+if __name__ == '__main__':
+    global g_number_to_find
+    if len(sys.argv) < 2:
+        print("Not enough arguments")
+        sys.exit(1)
+    elif len(sys.argv) >= 2:
+        g_number_to_find = int(sys.argv[1])
 
-# Start the mainloop to process BLE events, and run the provided function in
-# a background thread.  When the provided main function stops running, returns
-# an integer status code, or throws an error the program will exit.
-ble.run_mainloop_with(main)
+    # Initialize the BLE system.  MUST be called before other BLE calls!
+    ble.initialize()
+
+    # Start the mainloop to process BLE events, and run the provided function in
+    # a background thread.  When the provided main function stops running, returns
+    # an integer status code, or throws an error the program will exit.
+    ble.run_mainloop_with(main)
