@@ -65,6 +65,7 @@ def calc_xfer_parameters(num_records, packet_size):
 # of automatically though and you just need to provide a main function that uses
 # the BLE provider.
 def main():
+    global g_number_to_find
     # Clear any cached data because both bluez and CoreBluetooth have issues with
     # caching data and it going stale.
     ble.clear_cached_data()
@@ -78,7 +79,7 @@ def main():
     # print('Disconnecting any connected UART devices...')
     # UART.disconnect_devices()
 
-    devices = scan_for_peripherals(adapter, number_to_find)
+    devices = scan_for_peripherals(adapter, g_number_to_find)
 
     def download(peripheral):
         connected_to_peripheral = False
@@ -195,10 +196,20 @@ def main():
     # for peripheral in devices:
     #     download(peripheral)
     return
-# Initialize the BLE system.  MUST be called before other BLE calls!
-ble.initialize()
+if __name__ == '__main__':
+    global g_number_to_find
 
-# Start the mainloop to process BLE events, and run the provided function in
-# a background thread.  When the provided main function stops running, returns
-# an integer status code, or throws an error the program will exit.
-ble.run_mainloop_with(main)
+    g_command=b's'
+    if len(sys.argv) < 2:
+        print("Not enough arguments")
+        sys.exit(1)
+    elif len(sys.argv) >= 2:
+        g_number_to_find = int(sys.argv[1])
+
+    # Initialize the BLE system.  MUST be called before other BLE calls!
+    ble.initialize()
+
+    # Start the mainloop to process BLE events, and run the provided function in
+    # a background thread.  When the provided main function stops running, returns
+    # an integer status code, or throws an error the program will exit.
+    ble.run_mainloop_with(main)
