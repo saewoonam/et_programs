@@ -15,16 +15,18 @@ et_uuid      = uuid.UUID('7b183224-9168-443e-a927-7aeea07e8105')
 # spp_uuid     = uuid.UUID('4880c12c-fdcb-4077-8920-a450d7f9b907')
 spp_data_uuid= uuid.UUID('fec26ec4-6d71-4442-9f81-55bc21d658d6')
 
-# Get the BLE provider for the current platform.
-ble = Adafruit_BluefruitLE.get_provider()
+# # Get the BLE provider for the current platform.
+# ble = Adafruit_BluefruitLE.get_provider()
 global menu
-
-def item_func(peripheral, override=None):
+global ble
+def item_func(peripheral, override=None, command=None):
     global total_len, done_xfer, data_service, out
     service = peripheral.find_service(service_uuid)
     count = service.find_characteristic(count_uuid)
     rw    = service.find_characteristic(rw_uuid)
     data_service = service.find_characteristic(spp_data_uuid)
+    if command is not None:
+        rw.write_value(bytearray(command))
     read_val = rw.read_value()
     print("rw: ", read_val)
     count_raw = int.from_bytes(count.read_value(), byteorder='little')
@@ -56,12 +58,12 @@ def item_func(peripheral, override=None):
     print(type(out))
     print(out)
     if out == b'\x00':
-        write = f": OFF"
+        write = f"OFF"
     elif out == b'\x01':
-        write = f": ON"
+        write = f"ON"
     else:
-        write =f": {out.hex()}"
-
+        write = f": {out.hex()}"
+    print(type(override), override)
     selected = menu.selected_option
     if override is not None:
         menu.items[override].text = f"{peripheral.name}: rw:{read_val} count:{count_raw} write:{write}"
@@ -71,12 +73,12 @@ def item_func(peripheral, override=None):
     menu.epilogue_text = "Last result: " + menu.items[selected].text
     # input("Press Enter to continue.")
 
-def all_item_func(devices):
+def all_item_func(devices, command=None):
     for idx, k in enumerate(devices.keys()):
         peripheral = devices[k]
-        item_func(peripheral, override=idx)
+        item_func(peripheral, override=idx, command=command)
 
-def m(devices):
+def m(devices, command=None):
     # Create the root menu
     global menu
     menu = ConsoleMenu("Bluetooth Gadget get info", "")
@@ -85,10 +87,10 @@ def m(devices):
     for k in devices.keys():
         peripheral = devices[k]
         item_name = peripheral.name + ': ' + str(peripheral.id)
-        function_item = FunctionItem(item_name, item_func, [peripheral])
+        function_item = FunctionItem(item_name, item_func, [peripheral, None, command])
         menu.append_item(function_item)
 
-    function_item = FunctionItem('All', all_item_func, [devices])
+    function_item = FunctionItem('All', all_item_func, [devices, command])
     menu.append_item(function_item)
 
     menu.start()
@@ -141,7 +143,7 @@ def scan_for_peripherals(adapter, num=4):
 # of automatically though and you just need to provide a main function that uses
 # the BLE provider.
 def main():
-    global g_number_to_find
+    global g_number_to_find, g_command
     # Clear any cached data because both bluez and CoreBluetooth have issues with
     # caching data and it going stale.
     ble.clear_cached_data()
@@ -160,16 +162,20 @@ def main():
 
     for k in conn.keys():
         print(k, conn[k])
-
-    m(conn)
+    m(conn, g_command)
 
 if __name__ == '__main__':
-    global g_number_to_find
+    global g_number_to_find, g_command, ble
+
+    g_command=None
     if len(sys.argv) < 2:
         print("Not enough arguments")
         sys.exit(1)
     elif len(sys.argv) >= 2:
         g_number_to_find = int(sys.argv[1])
+
+    # Get the BLE provider for the current platform.
+    ble = Adafruit_BluefruitLE.get_provider()
 
     # Initialize the BLE system.  MUST be called before other BLE calls!
     ble.initialize()
