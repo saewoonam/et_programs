@@ -13,7 +13,7 @@ def main():
     # Create the root menu
     menu = ConsoleMenu("Convert binary to csv", "")
 
-    files = glob.glob('NIST/*.bin')
+    files = glob.glob('*.bin')
     files.sort()
     files = files[::-1]
 

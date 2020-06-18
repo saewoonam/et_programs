@@ -63,7 +63,7 @@ def scan_for_peripherals(adapter, num=4):
             if (len(devices)>=num):
                 all_found = True
                 return devices
-            print(f"found {len(devices)}/{num}")
+            # print(f"found {len(devices)}/{num}")
         finally:
             # Make sure scanning is stopped before exiting.
             adapter.stop_scan()
