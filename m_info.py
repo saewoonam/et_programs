@@ -78,10 +78,10 @@ def all_item_func(devices, command=None):
         peripheral = devices[k]
         item_func(peripheral, override=idx, command=command)
 
-def m(devices, command=None):
+def m(devices, command=None, task="get info"):
     # Create the root menu
     global menu
-    menu = ConsoleMenu("Bluetooth Gadget get info", "")
+    menu = ConsoleMenu("Bluetooth Gadget "+task, "")
     # Create a menu item that calls a function
     # for peripheral in devices:
     for k in devices.keys():
@@ -143,7 +143,7 @@ def scan_for_peripherals(adapter, num=4):
 # of automatically though and you just need to provide a main function that uses
 # the BLE provider.
 def main():
-    global g_number_to_find, g_command
+    global g_number_to_find, g_command, g_task
     # Clear any cached data because both bluez and CoreBluetooth have issues with
     # caching data and it going stale.
     ble.clear_cached_data()
@@ -162,12 +162,13 @@ def main():
 
     for k in conn.keys():
         print(k, conn[k])
-    m(conn, g_command)
+    m(conn, g_command, g_task)
 
 if __name__ == '__main__':
-    global g_number_to_find, g_command, ble
+    global g_number_to_find, g_command, g_task, ble
 
     g_command=None
+    g_task = "get info"
     if len(sys.argv) < 2:
         print("Not enough arguments")
         sys.exit(1)

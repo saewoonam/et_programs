@@ -6,6 +6,7 @@ if __name__ == '__main__':
     global g_number_to_find, g_command, ble
 
     g_command=b'w'
+    g_task = "start writing to flash"
     if len(sys.argv) < 2:
         print("Not enough arguments")
         sys.exit(1)
@@ -17,6 +18,7 @@ if __name__ == '__main__':
     m_info.ble = ble
     m_info.g_number_to_find = g_number_to_find
     m_info.g_command = g_command
+    m_info.g_task = g_task
     # Initialize the BLE system.  MUST be called before other BLE calls!
     ble.initialize()
 
