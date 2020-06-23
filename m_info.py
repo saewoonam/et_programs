@@ -131,7 +131,7 @@ def scan_for_peripherals(adapter, num=4):
             if len(conn)>= num:
                 done = True
             else:
-                print(f"Found {len(connect)} / {num}")
+                print(f"Found {len(conn)} / {num}")
 
     finally:
         adapter.stop_scan()
